@@ -1,0 +1,3 @@
+# oauth token and secret
+access_token='FzwoZtagSONYoKhiUEaJAQgGzdGcUtmQwWfcHCGm'
+access_secret='UAHQMTZTLUkIgDvPvVNGwqjUxXYAhSujUAVltNKj'
