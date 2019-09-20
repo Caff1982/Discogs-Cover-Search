@@ -1,43 +1,47 @@
 import csv
+import shutil
+import time
 
 from discogs import Discogs
 
 
-# hard coded while testing
-filepath = 'AlbumsExport.csv'
+# hard coded for testing
+filepath = 'inventory.csv'
+
 
 class ImageScraper:
     """
     Takes CSV file of music releases and searches Discogs API for cover image.
     Creates a dictionary mapping the column headers to search terms which can
     be customized.
-    Cover images are saved in 'images' directory using the cover id from 
+
+    Cover images are saved in 'images' directory using the cover id from
     Discogs. Creates an output CSV copying each row and adding the cover id
     of 'Null' if nothing found.
     """
-
-    def __init__(self, filepath, delimiter=',', encoding='utf-8', quotechar='"'):
+    def __init__(self, filepath, delimiter=',',
+                 encoding='utf-8', quotechar='"'):
         self.discogs = Discogs()
         self.filepath = filepath
         self.delimiter = delimiter
         self.encoding = encoding
         self.quotechar = quotechar
-        self.search_terms = ('title', 'artist', 'format', 'album', 'label', 'year')
+        self.search_terms = ('title', 'artist', 'format',
+                             'album', 'label', 'year')
         self.output_csv = 'output.csv'
 
         self.get_columns()
         self.get_param_dict()
-
 
     def get_columns(self):
         """
         Returns the columns from CSV file as a list
         """
         with open(self.filepath, 'r', encoding=self.encoding) as file:
-            csv_reader = csv.reader(file, delimiter=self.delimiter, quotechar=self.quotechar)
+            csv_reader = csv.reader(file, delimiter=self.delimiter,
+                                    quotechar=self.quotechar)
             headers = next(csv_reader)
             self.columns = [col for col in headers]
-            print(self.columns)
 
     def get_param_dict(self):
         self.param_dict = {}
@@ -46,9 +50,24 @@ class ImageScraper:
                 if col.lower() == param:
                     self.param_dict[param] = i
 
-        # If item is not on an album it probably is an album
-        # if not param_dict.get('album'):
-        #     param_dict['format'] = 'album' 
+    def confirm_dict(self):
+        update_dict = True
+        while update_dict:
+            for param, col in self.param_dict.items():
+                print(f'{param} found in column {col}')
+            print('\nTo procede with these settings press Enter.')
+            print('To add an item enter the header-text then col eg: title 1.')
+            print('To delete enter the item eg: artist.')
+            update_dict = input('> ')
+            if update_dict:
+                print(len(update_dict.split()))
+                if len(update_dict.split()) == 2:
+                    param, col = update_dict.split()
+                    self.param_dict[param] = col
+                elif len(update_dict.split()) == 1:
+                    del self.param_dict[update_dict]
+                else:
+                    print("I didn't understand that, please try again.")
 
     def get_search_params(self, row):
         """
@@ -56,7 +75,7 @@ class ImageScraper:
         parameters to their values
         """
         params = {}
-        for k,v in self.param_dict.items():
+        for k, v in self.param_dict.items():
             params[k] = row[v].replace(" ", "+")
         return params
 
@@ -65,33 +84,27 @@ class ImageScraper:
             csv_reader = csv.reader(input_file, delimiter=self.delimiter)
             next(csv_reader)
             for row in csv_reader:
-                print(row)
                 params = self.get_search_params(row)
                 try:
                     response, cover_id = self.discogs.search(params)
                     with open(self.output_csv, 'a') as output_file:
                         output_csv = csv.writer(output_file)
                         output_csv.writerow(row + [cover_id])
-                        binary_str = response.read()
-                        file_obj = open('images/' + cover_id + '.jpg', 'wb')
-                        file_obj.write(binary_str)
-                        file_obj.close()
+                        with open('images/' + cover_id + '.jpg', 'wb') as f:
+                            shutil.copyfileobj(response.raw, f)
+                        del response
+
                 except TypeError:
                     with open(self.output_csv, 'a') as output_file:
                         output_csv = csv.writer(output_file)
                         output_csv.writerow(row + ['Null'])
-
-
+                time.sleep(1.2)
 
 
 if __name__ == '__main__':
-    # TODO: display InputFileParser arg
-    file = ImageScraper(filepath, delimiter=';', encoding='utf-8-sig')
-    # TODO: confirm paramters before searching
-    print(file.param_dict)
+    # TODO: Allow the user to select the filepath
+    file = ImageScraper(filepath)
+
+    file.confirm_dict()
+
     file.run()
-
-
-
-
-    

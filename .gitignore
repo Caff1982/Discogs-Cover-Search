@@ -1,2 +1,10 @@
 env/
+images/ 
 __pycache__
+access_tokens.py 
+
+inventory.csv
+inventory_large.csv
+PlaylistExport.csv
+output.csv
+
