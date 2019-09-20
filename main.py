@@ -5,10 +5,6 @@ import time
 from discogs import Discogs
 
 
-# hard coded for testing
-filepath = 'inventory.csv'
-
-
 class ImageScraper:
     """
     Takes CSV file of music releases and searches Discogs API for cover image.
@@ -57,7 +53,7 @@ class ImageScraper:
                 print(f'{param} found in column {col}')
             print('\nTo procede with these settings press Enter.')
             print('To add an item enter the header-text then col eg: title 1.')
-            print('To delete enter the item eg: artist.')
+            print('To delete an item enter the item eg: artist.')
             update_dict = input('> ')
             if update_dict:
                 print(len(update_dict.split()))
@@ -102,7 +98,7 @@ class ImageScraper:
 
 
 if __name__ == '__main__':
-    # TODO: Allow the user to select the filepath
+    filepath = input('Please enter the name or path to the input CSV file.\n')
     file = ImageScraper(filepath)
 
     file.confirm_dict()

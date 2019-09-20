@@ -1,5 +1,4 @@
-env/
-images/ 
+env/ 
 __pycache__
 access_tokens.py 
 
