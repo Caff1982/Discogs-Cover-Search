@@ -1,3 +1,4 @@
+import os
 import csv
 import shutil
 import time
@@ -25,6 +26,10 @@ class ImageScraper:
         self.search_terms = ('title', 'artist', 'format',
                              'album', 'label', 'year')
         self.output_csv = 'output.csv'
+
+        if not os.path.exists('images/'):
+            os.mkdir('images/')
+        self.image_path = 'images/'
 
         self.get_columns()
         self.get_param_dict()
@@ -56,10 +61,9 @@ class ImageScraper:
             print('To delete an item enter the item eg: artist.')
             update_dict = input('> ')
             if update_dict:
-                print(len(update_dict.split()))
                 if len(update_dict.split()) == 2:
                     param, col = update_dict.split()
-                    self.param_dict[param] = col
+                    self.param_dict[param] = int(col)
                 elif len(update_dict.split()) == 1:
                     del self.param_dict[update_dict]
                 else:
@@ -86,7 +90,7 @@ class ImageScraper:
                     with open(self.output_csv, 'a') as output_file:
                         output_csv = csv.writer(output_file)
                         output_csv.writerow(row + [cover_id])
-                        with open('images/' + cover_id + '.jpg', 'wb') as f:
+                        with open(self.image_path + cover_id + '.jpg', 'wb') as f:
                             shutil.copyfileobj(response.raw, f)
                         del response
 
