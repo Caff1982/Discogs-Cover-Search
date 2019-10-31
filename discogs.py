@@ -31,7 +31,7 @@ class Discogs:
             self.get_request_token()
 
     def get_request_token(self):
-        self.discogs.get_consumer_key(self.consumer_key, self.consumer_secret)
+        self.discogs.set_consumer_key(self.consumer_key, self.consumer_secret)
         token, secret, url = self.discogs.get_authorize_url()
 
         auth = False
